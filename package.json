@@ -5,7 +5,8 @@
   "main": "index.html",
   "scripts": {
     "test": "echo \"Erro: no test specified\" && exit 1",
-    "start": "webpack --target='node-webkit' && ~/nw/nw ."
+    "start": "webpack --target='node-webkit' && ./nw/nw .",
+    "dev": "./nw/nw . & webpack-dev-server --target='node-webkit'"
   },
   "repository": {
     "type": "git",
@@ -18,14 +19,19 @@
   },
   "homepage": "https://github.com/kalmik/node-supervisor#readme",
   "dependencies": {
+    "chart.js": "^1.0.2",
     "promise": "^7.0.4",
     "react": "^0.13.3",
     "react-bootstrap": "^0.26.1",
-    "react-highcharts": "^2.1.0"
+    "react-chartjs": "^0.6.0",
+    "react-highcharts": "^2.0.0",
+    "zingchart-react": "^1.0.1"
   },
   "devDependencies": {
+    "babel-core": "^5.8.25",
+    "babel-loader": "^5.3.2",
     "jsx-loader": "^0.13.2",
-    "webpack": "^1.12.2",
+    "webpack": "^1.10.5",
     "webpack-dev-server": "^1.12.0"
   }
 }

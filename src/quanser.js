@@ -50,7 +50,7 @@ module.exports = function() {
     })
     .then(function(res){
       //console.log('THEN READ '+channel+' '+res);
-      _this.outputs[channel] = +res;
+      _this.outputs.sensors[channel] = +res;
       if(channel < channelsToRead-1) _this.read(++channel);
       else _this.processor();
     });
