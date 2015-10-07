@@ -1,0 +1,31 @@
+{
+  "name": "node-supervisor",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Erro: no test specified\" && exit 1",
+    "start": "webpack --target='node-webkit' && ~/nw/nw ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://kalmik@github.com/kalmik/node-supervisor.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kalmik/node-supervisor/issues"
+  },
+  "homepage": "https://github.com/kalmik/node-supervisor#readme",
+  "dependencies": {
+    "promise": "^7.0.4",
+    "react": "^0.13.3",
+    "react-bootstrap": "^0.26.1",
+    "react-highcharts": "^2.1.0"
+  },
+  "devDependencies": {
+    "jsx-loader": "^0.13.2",
+    "webpack": "^1.12.2",
+    "webpack-dev-server": "^1.12.0"
+  }
+}
