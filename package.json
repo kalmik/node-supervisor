@@ -33,5 +33,14 @@
     "jsx-loader": "^0.13.2",
     "webpack": "^1.10.5",
     "webpack-dev-server": "^1.12.0"
+  },
+  "window": {
+    "title": "node-webkit demo",
+    "toolbar": true,
+    "frame": true,
+    "width": 870,
+    "height": 500,
+    "position": "mouse",
+    "fullscreen": false
   }
 }

@@ -65,7 +65,14 @@ module.exports = function() {
       _resolve(_this.signal);
     })
     .then(function(res){
-        //_this.client.write('WRITE 0 '+(res.toString())+'\n');
+        _this.client.write('WRITE 0 '+(res.toString())+'\n', function(){
+          var pause = 100  - (Date.now() - _this.startTime);
+          pause = pause > 0 ? pause : 0;
+          setTimeout(function(){
+            _this.read(0);
+          }, pause);
+          _this.startTime = Date.now();
+        });
     });
   } 
   
@@ -77,8 +84,8 @@ module.exports = function() {
     console.log(host, port); 
 
     _this.client.connect(port, host, function(){
-
-
+      
+      this.connected = true;
       console.log('connected');
 
       _this.client.on('data', function(data) {
@@ -87,11 +94,11 @@ module.exports = function() {
         }
       });
 
-      setInterval(function(){
+      setTimeout(function(){
+        _this.startTime = Date.now();
         _this.read(0);
-      },100);
+      },1000);
 
-      console.log(_this);
 
 
     });
@@ -106,6 +113,8 @@ module.exports = function() {
     actualPromise: null,
     client: null,
     read: read,
+    startTime: 0,
+    connected: false,
     processor: processor,
   }
 }

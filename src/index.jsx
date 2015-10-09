@@ -1,10 +1,12 @@
 
 var program_core = function() {
+  
+  var gui = require('nw.gui');
+  var win = gui.Window.get();
 
   var React = require('react');
   var quanser = require('./quanser'); 
   var BS = require('react-bootstrap');
-  //var LineChart = require("react-chartjs").Line;
   var ZingChart = require('zingchart-react').core;
   var server = new quanser();
 
@@ -14,13 +16,17 @@ var program_core = function() {
   var Button = BS.Button;
   var Modal = BS.Modal;
   var Input = BS.Input;
-
-  //var LineChart = ZingChart.line;
+  var OverlayTrigger = BS.OverlayTrigger;
+  var Tooltip = BS.Tooltip;
 
   var Plot = React.createClass({
     
     componentDidMount: function() {
       setInterval(this.changeData, 100);
+      for(var i=0; i< 1200; i++){
+        this.state.tank1.push(0);
+        this.state.tank2.push(0);
+      }
     },
 
     changeData: function() {
@@ -70,13 +76,32 @@ var program_core = function() {
           }
         ],
         plot: {
-          aspect: "spline",
+          aspect: "segmented",
           marker: {
-            visible: true
+            visible: false
           },
           hoverState: {},
           tooltip: {
-            visible: true
+            visible: false
+          },
+          "legend-marker":{
+            "type" : "circle",
+            "border-width" : 2,
+            "border-color" : "white"
+          },
+        },
+        "legend":{
+          "position":"50% 100%",
+          "margin":"30 3 5 3",
+          "layout":"x2",
+          "font-family":"arial",
+          "font-size":"8px",
+          "background-color":"#E6E6E6",
+          "width":"435px",
+          "item":{
+            "marker-style":"square",
+            "font-color":"#000000",
+            "border-width":"0px"
           }
         },
         scaleX: {
@@ -92,27 +117,40 @@ var program_core = function() {
           },
           minValue : Date.now() - 120*1000,
           step: 1200,
-          guide: {
-            visible: false
-          },
-          lineColor: "#333",
-          tick: {
-            lineColor: "#333"
-          },
-          item: {
-            fontColor: "#333"
-          },
-          refLine: {
-            lineColor: "#333"
-          }
         },
       }
 
       return (
         <div>
-            <Button bsStyle="warning" onClick={this.pause} block><i className="fa fa-pause"></i></Button>
-        <ZingChart id="chart1" height="300" width="100%" data={myConfig} legend="true" theme="light" title="Hello Line Chart"/>
+          <Button bsStyle="warning" onClick={this.pause} block><i className="fa fa-pause"></i></Button>
+            <ZingChart id="chart1" height={this.props.height||"300"} width="100%" data={myConfig} legend="true" theme="light"/>
         </div>
+      )
+    }
+  });
+
+  var Setpoint = React.createClass({
+    
+    render: function() {
+      return (
+        <div>
+          OI
+        </div>  
+      )
+    }
+  
+  });
+
+
+  var ActionButton = React.createClass({
+    render: function(){
+      return (
+        
+              <OverlayTrigger placement={this.props.placment||"right"} overlay={
+              <Tooltip>{this.props.title}</Tooltip>
+              }>
+                <Button bsStyle={this.props.type} block onClick={this.props.onClick}><i className={this.props.icon}></i></Button>
+              </OverlayTrigger>
       )
     }
   });
@@ -120,29 +158,35 @@ var program_core = function() {
   var App = React.createClass({
     getInitialState: function() {
       return {
-        connectWindowIsVisible: false,
+        connectWindowIsVisible: true,
+        setpointWindowIsVisible: false,
         plotTime: 0,
-        /*chartData: {
-          labels:[0],
-          datasets:[
-            {
-              data: [0]
-            }
-          ]
-        }*/
-        plot: [{text:"Data1", values:[4,3,2]}]
       }
     },
+
     showConnectWindow: function() {
       this.setState({
         connectWindowIsVisible: true
       })
     },
+
     closeConnectWindow: function() {
       this.setState({
         connectWindowIsVisible: false
       })
-    }, 
+    },
+
+    showSetpointWindow: function() {
+      this.setState({
+        setpointWindowIsVisible: true
+      })
+    },
+
+    closeSetpointWindow: function() {
+      this.setState({
+        setpointWindowIsVisible: false
+      })
+    },
 
     connect: function() {
       var ip = this.refs.connectHost.getValue();
@@ -150,27 +194,24 @@ var program_core = function() {
       server.connect(ip, +port);
       this.closeConnectWindow();
     },
-  
-    test: function() {
+ 
+    close: function() {
       console.log("add");
-      this.state.plotTime += 1;
-      this.state.plot[0].values.push(this.state.plotTime);
-      this.setState({plot: this.state.plot});
-      
+      win.close(true);
     },
-
 
     render: function() {
       return (
-        <section>
+        <section style={{padding: 20}}>
             <Modal show={this.state.connectWindowIsVisible} onHide={this.closeConnectWindow}>
               <Modal.Header>
-                <Modal.Title>Modal title</Modal.Title>
+                <Modal.Title>Open Connection</Modal.Title>
               </Modal.Header>
 
               <Modal.Body>
                 <Input 
                   type="text"
+                  value="127.0.0.1"
                   placeholder="Enter host"
                   label="Host IP"
                   ref="connectHost"
@@ -190,22 +231,36 @@ var program_core = function() {
               </Modal.Footer>
 
             </Modal>
+
+            <Modal show={this.state.setpointWindowIsVisible} onHide={this.closeSetpointWindow}>
+              <Modal.Header>
+                <Modal.Title>Configure Setpoint</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <Setpoint />
+              </Modal.Body>
+              <Modal.Footer>
+                <Button onClick={this.closeSetpointWindow}>Close</Button>
+                <Button bsStyle="primary">Save</Button>
+              </Modal.Footer>
+            </Modal>
+
           <Row>
-            <Col xs={2} >
-              <Button bsStyle="success" block onClick={this.showConnectWindow}><i className="fa fa-plug"></i></Button>
-              <Button block onClick={this.test}><i className="fa fa-power-off"></i></Button>
+
+            <Col xs={1} >
+              <ActionButton type={server.connected?'success':'warning'} icon="fa fa-plug" title="Connect" onClick={this.showConnectWindow}/>
+              <ActionButton type="primary" icon="fa fa-object-group" title="Controllers" />
+              <ActionButton type="primary" icon="fa fa-line-chart" title="Setpoint" onClick={this.showSetpointWindow} />
+              <ActionButton type="danger" icon="fa fa-power-off" title="Close" onClick={this.close}/>
             </Col>
-            <Col xs={8}>
-              <Plot sensors={server.outputs.sensors} />
+            <Col xs={10}>
+              <Plot sensors={server.outputs.sensors} height={400}/>
             </Col>
           </Row>
         </section>
       )
     }
   })
-
-
-
 
   React.render(<App />, document.getElementById('content'));
 
