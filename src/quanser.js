@@ -46,11 +46,12 @@ module.exports = function() {
     var _this = this;
     var promise = new Promise(function(_resolve, _reject){
       _this.actualPromise = {resolve: _resolve, reject: _reject};  
-      _this.client.write('READ '+(channel));
+        _this.client.write('READ '+(channel)+'\n');
+
     })
     .then(function(res){
       //console.log('THEN READ '+channel+' '+res);
-      _this.outputs.sensors[channel] = +res;
+      _this.outputs.sensors[channel] = +res*6.25;
       if(channel < channelsToRead-1) _this.read(++channel);
       else _this.processor();
     });
@@ -60,34 +61,38 @@ module.exports = function() {
     var _this = this;
     _this.actualPRomise = null;
     var promise = new Promise(function(_resolve, _reject) {
-      _this.signal += 0.01;
+      //_this.signal += 0.01;
       _resolve(_this.signal);
     })
     .then(function(res){
-      //console.log('THEN PROCESS-------------------' + res);
-      _this.client.write('WRITE 0 '+(res.toString()));
+        //_this.client.write('WRITE 0 '+(res.toString())+'\n');
     });
   } 
   
   var _connect = function(host, port){
     var _this = this;
     _this.client = new net.Socket();
+    _this.host = host;
+    _this.port = port;
     console.log(host, port); 
 
     _this.client.connect(port, host, function(){
+
+
       console.log('connected');
-      
+
       _this.client.on('data', function(data) {
         if(_this.actualPromise) {
           _this.actualPromise.resolve(data.toString());
         }
-      })
-
-      console.log(_this);
+      });
 
       setInterval(function(){
         _this.read(0);
       },100);
+
+      console.log(_this);
+
 
     });
   }
@@ -96,7 +101,7 @@ module.exports = function() {
     connect: _connect,
     config: _config,
     outputs: _outputs,
-    signal: 0,
+    signal: 2,
     channelsToRead: 2,
     actualPromise: null,
     client: null,

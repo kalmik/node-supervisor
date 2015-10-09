@@ -26,20 +26,22 @@ var program_core = function() {
     changeData: function() {
       if(this.state.pause) return;
       this.setState({
-        plot: this.simulateLiveData()
+        tank1: this.simulateLiveData('tank1', 0),
+        tank2: this.simulateLiveData('tank2', 1)
       })
     },
 
-    simulateLiveData: function(){
-      this.state.plot.push(this.props.sensors[0]);
-      if(this.state.plot.length > 1200)
-        this.state.plot.shift();
-      return this.state.plot;
+    simulateLiveData: function(who, local){
+      this.state[who].push(this.props.sensors[local]);
+      if(this.state[who].length > 1200)
+        this.state[who].shift();
+      return this.state[who];
     },
 
     getInitialState: function() {
       return {
-        plot:[],
+        tank1:[],
+        tank2:[],
         pause: false,
       }
     },
@@ -51,23 +53,30 @@ var program_core = function() {
     render: function() {
       var myConfig = {
         type: "line",
-        series: [{
-          values: this.state.plot,
-          lineColor: "#1fbff3",
-          backgroundColor1: "#77d9f8",
-          backgroundColor2: "#272822",
-          shadowColor: "transparent",
-          lineWidth: 2,
-          text: "Users"
-        }],
+        series: [
+          {
+            values: this.state.tank1,
+            lineColor: "#1fbff3",
+            shadowColor: "transparent",
+            lineWidth: 2,
+            text: "Tank1"
+          },
+          {
+            values: this.state.tank2,
+            lineColor: "#bf00f3",
+            shadowColor: "transparent",
+            lineWidth: 2,
+            text: "Tank2"
+          }
+        ],
         plot: {
           aspect: "spline",
           marker: {
-            visible: "false"
+            visible: true
           },
           hoverState: {},
           tooltip: {
-            visible: false
+            visible: true
           }
         },
         scaleX: {
@@ -162,7 +171,6 @@ var program_core = function() {
               <Modal.Body>
                 <Input 
                   type="text"
-                  value="127.0.0.1"
                   placeholder="Enter host"
                   label="Host IP"
                   ref="connectHost"
